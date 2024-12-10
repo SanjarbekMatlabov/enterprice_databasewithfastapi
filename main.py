@@ -93,3 +93,74 @@
 #             continue
 #     return f"{g_number} bunday guruh topilmadi"
 
+from fastapi import FastAPI,HTTPException
+from sqlalchemy import create_engine,Column,Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "sqlite:///./dars.db"
+engine = create_engine(DATABASE_URL,connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
+# bu bazoviy class hioblanib shundan barcha modellar voris oladi.
+Base = declarative_base()
+
+class Student(Base):
+    __tablename__ = "students"
+    id = Column(Integer,primary_key=True,index=True)
+    name = Column(String,index=True)
+    age = Column(Integer)
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+@app.post("/students/")
+def create_students(name:str,age:int):
+    db = SessionLocal()
+    new_student = Student(name=name, age=age)
+    db.add(new_student)
+    db.commit()
+    db.refresh(new_student)
+    db.close()
+    return {"id": new_student.id, "name":new_student.name,"age":new_student.age}
+@app.get("/students/")
+def get_students():
+    db = SessionLocal()
+    students = db.query(Student).all()
+    db.close()
+    return students
+# only one student
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    db = SessionLocal()
+    student = db.query(Student).filter(Student.id == student_id).first()
+    db.close()
+    if student:
+        return student
+    raise HTTPException(status_code=404,detail="Student not found")
+
+@app.put("/student/{student_id}")
+def update_student(student_id:int,name:str = None, age:int = None):
+    db = SessionLocal()
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        db.close()
+        raise HTTPException(status_code=404, detail="Student not found")
+    if name:
+        student.name = name
+    if age:
+        student.age = age
+    db.commit()
+    db.refresh(student)
+    db.close()
+    return student
+@app.delete("/students/{student_id}")
+def delete_student(student_id:int):
+    db = SessionLocal()
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        db.close()
+        raise HTTPException(status_code=404, detail="Student not found")
+    db.delete(student)
+    db.commit()
+    db.close()
+    return {"Message": "Student deleted succesfully"}
