@@ -164,21 +164,3 @@
 #     db.commit()
 #     db.close()
 #     return {"Message": "Student deleted succesfully"}
-
-from fastapi import FastAPI,HTTPException
-from sqlalchemy import create_engine,Column,Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "sqlite:///./ticket.db"
-engine = create_engine(DATABASE_URL,connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
-# bu bazoviy class hioblanib shundan barcha modellar voris oladi.
-Base = declarative_base()
-
-class Ticket(Base):
-    __tablename__ = "tickets"
-    id = Column(Integer, primary_key=True, index=True)
-
-Base.metadata.create_all(bind=engine)
-app = FastAPI()
