@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -7,7 +8,10 @@ DATABASE_URL = "sqlite:///./ticket.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
+class FlightModel(BaseModel):
+    id:int
+    space_count: int
+    from_to:str
 class Flight(Base):
     __tablename__ = "flight"
     id = Column(Integer, primary_key=True, index=True)
@@ -84,3 +88,4 @@ def update(id:int,space_count: int, from_to: str):
     db.refresh(flight)
     db.close()
     return flight
+ 
