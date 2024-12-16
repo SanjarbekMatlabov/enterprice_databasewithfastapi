@@ -58,3 +58,29 @@ def get_flights():
     data = db.query(Flight).all()
     db.close()
     return list(data)
+@app.delete("/delete_flight/{id}")
+def del_flight(id:int):
+    db = SessionLocal()
+    flight = db.query(Flight).filter(Flight.id == id).first()
+    if not flight:
+        db.close()
+        raise HTTPException(status_code=404, detail="flight not found")
+    db.delete(flight)
+    db.commit()
+    db.close()
+    return {"Message": "Student deleted succesfully"}
+@app.put('/update/{id}')
+def update(id:int,space_count: int, from_to: str):
+    db = SessionLocal()
+    flight = db.query(Flight).filter(Flight.id == id).first()
+    if not flight:
+        db.close()
+        raise HTTPException(status_code=404, detail="Student not found")
+    if space_count:
+        flight.space_count = space_count
+    if from_to:
+        flight.from_to = from_to
+    db.commit()
+    db.refresh(flight)
+    db.close()
+    return flight
