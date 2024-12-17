@@ -164,3 +164,8 @@
 #     db.commit()
 #     db.close()
 #     return {"Message": "Student deleted succesfully"}
+from fastapi import FastAPI
+app = FastAPI()
+@app.post("/yuza")
+def yuza(a:int,b:int):
+    return {"result": a*b}

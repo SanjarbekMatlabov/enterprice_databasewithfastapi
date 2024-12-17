@@ -88,4 +88,3 @@ def update(id:int,space_count: int, from_to: str):
     db.refresh(flight)
     db.close()
     return flight
- 
