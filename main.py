@@ -169,3 +169,6 @@ app = FastAPI()
 @app.post("/yuza")
 def yuza(a:int,b:int):
     return {"result": a*b}
+@app.post("/yuza")
+def yigindi(a:int,b:int):
+    return {"result": a+b}
